@@ -11,16 +11,12 @@ import * as searchIndex from 'src/search'
 import extractTimeFiltersFromQuery, {
     queryFiltersDisplay,
 } from 'src/util/nlp-time-filter'
-import {
-    OVERVIEW_URL
-} from './constants'
-import {
-    EVENT_NAMES
-} from './analytics/internal/constants'
+import { OVERVIEW_URL } from './constants'
+import { EVENT_NAMES } from './analytics/internal/constants'
 
 // Read which browser we are running in.
-let browserName;
-(async () => {
+let browserName
+;(async () => {
     // XXX Firefox seems the only one currently implementing this function, but
     // luckily that is enough for our current needs.
     if (browser.runtime.getBrowserInfo !== undefined) {
@@ -34,9 +30,9 @@ function formatTime(timestamp, showTime) {
     const inLastSevenDays = moment().diff(m, 'days') <= 7
 
     if (showTime) {
-        return inLastSevenDays ?
-            `🕒 ${m.format('HH:mm a ddd')}` :
-            `🕒 ${m.format('HH:mm a D/M/YYYY')}`
+        return inLastSevenDays
+            ? `🕒 ${m.format('HH:mm a ddd')}`
+            : `🕒 ${m.format('HH:mm a D/M/YYYY')}`
     }
     return inLastSevenDays ? m.format('ddd') : m.format('D/M/YYYY')
 }
@@ -54,8 +50,10 @@ const pageToSuggestion = timeFilterApplied => doc => {
 
     return {
         content: doc.url,
-        description: browserName === 'Firefox' ?
-            `${url} ${title} - ${time}` : `<url>${url}</url> <dim>${title}</dim> - ${time}`,
+        description:
+            browserName === 'Firefox'
+                ? `${url} ${title} - ${time}`
+                : `<url>${url}</url> <dim>${title}</dim> - ${time}`,
     }
 }
 
@@ -85,15 +83,19 @@ async function makeSuggestion(query, suggest) {
 
     analytics.trackEvent({
         category: 'Search',
-        action: searchResults.totalCount > 0 ?
-            'Successful omnibar search' : 'Unsuccessful omnibar search',
+        action:
+            searchResults.totalCount > 0
+                ? 'Successful omnibar search'
+                : 'Unsuccessful omnibar search',
         name: queryFiltersDisplay(queryFilters),
         value: searchResults.totalCount,
     })
 
     internalAnalytics.processEvent({
-        type: searchResults.totalCount > 0 ?
-            EVENT_NAMES.SUCCESSFUL_OMNIBAR_SEARCH : EVENT_NAMES.UNSUCCESSFUL_OMNIBAR_SEARCH,
+        type:
+            searchResults.totalCount > 0
+                ? EVENT_NAMES.SUCCESSFUL_OMNIBAR_SEARCH
+                : EVENT_NAMES.UNSUCCESSFUL_OMNIBAR_SEARCH,
     })
 
     // A subsequent search could have already started and finished while we
@@ -149,18 +151,18 @@ const acceptInput = (text, disposition) => {
     switch (disposition) {
         case 'currentTab':
             browser.tabs.update({
-                url
+                url,
             })
             break
         case 'newForegroundTab':
             browser.tabs.create({
-                url
+                url,
             })
             break
         case 'newBackgroundTab':
             browser.tabs.create({
                 url,
-                active: false
+                active: false,
             })
             break
     }
